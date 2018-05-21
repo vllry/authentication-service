@@ -1,14 +1,14 @@
 package main
 
 import (
-	"github.com/dgrijalva/jwt-go"
-	"fmt"
-	"io/ioutil"
 	"crypto/rsa"
+	"fmt"
+	"github.com/dgrijalva/jwt-go"
+	"io/ioutil"
 )
 
-func loadPublicKey(keyPath string) (*rsa.PublicKey, error) {
-	verifyBytes, err := ioutil.ReadFile("/home/vallery/Development/Go/src/jwtissuer/app.rsa.pub")
+func loadPublicKey(pubkeyPath string) (*rsa.PublicKey, error) {
+	verifyBytes, err := ioutil.ReadFile(pubkeyPath)
 	if err != nil {
 		return nil, err
 	}
