@@ -1,0 +1,27 @@
+func issue() (string, error) {
+signBytes, err := ioutil.ReadFile("/home/vallery/Development/Go/src/jwtissuer/app.rsa")
+if err != nil {
+panic(err)
+}
+signKey, err := jwt.ParseRSAPrivateKeyFromPEM(signBytes)
+if err != nil {
+panic(err)
+}
+
+fmt.Println("Creating token...")
+// Create a new token object, specifying signing method and the claims
+// you would like it to contain.
+// NOTE: jwt.New(jwt.GetSigningMethod("RS256")) WORKS
+token := jwt.NewWithClaims(
+jwt.SigningMethodRS256,
+jwt.MapClaims{
+"foo": "bar",
+})
+
+fmt.Println("Signing token...")
+// Sign and get the complete encoded token as a string using the secret
+tokenString, err := token.SignedString(signKey)
+
+fmt.Println(tokenString, err)
+return tokenString, err
+}
