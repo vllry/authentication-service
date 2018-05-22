@@ -7,6 +7,11 @@ import (
 	"io/ioutil"
 )
 
+type MyCustomClaims struct {
+	Foo string `json:"foo"`
+	jwt.StandardClaims
+}
+
 func loadPublicKey(pubkeyPath string) (*rsa.PublicKey, error) {
 	verifyBytes, err := ioutil.ReadFile(pubkeyPath)
 	if err != nil {
@@ -21,19 +26,6 @@ func loadPublicKey(pubkeyPath string) (*rsa.PublicKey, error) {
 }
 
 func validateToken(verifyKey *rsa.PublicKey, token string) (bool, error) {
-	//verifyBytes, err := ioutil.ReadFile("/home/vallery/Development/Go/src/jwtissuer/app.rsa.pub")
-	//if err != nil {
-	//	panic(err)
-	//}
-	//verifyKey, err := jwt.ParseRSAPublicKeyFromPEM(verifyBytes)
-	//if err != nil {
-	//	panic(err)
-	//}
-
-	type MyCustomClaims struct {
-		Foo string `json:"foo"`
-		jwt.StandardClaims
-	}
 	claims := MyCustomClaims{}
 	processedToken, err := jwt.ParseWithClaims(
 		token,
