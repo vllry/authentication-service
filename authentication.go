@@ -7,12 +7,12 @@ import (
 	"io/ioutil"
 )
 
-type MyCustomClaims struct {
+type CustomClaims struct {
 	Foo string `json:"foo"`
 	jwt.StandardClaims
 }
 
-func loadPublicKey(pubkeyPath string) (*rsa.PublicKey, error) {
+func LoadPublicKey(pubkeyPath string) (*rsa.PublicKey, error) {
 	verifyBytes, err := ioutil.ReadFile(pubkeyPath)
 	if err != nil {
 		return nil, err
@@ -25,8 +25,8 @@ func loadPublicKey(pubkeyPath string) (*rsa.PublicKey, error) {
 	return verifyKey, nil
 }
 
-func validateToken(verifyKey *rsa.PublicKey, token string) (bool, error) {
-	claims := MyCustomClaims{}
+func ValidateToken(verifyKey *rsa.PublicKey, token string) (CustomClaims, error) {
+	claims := CustomClaims{}
 	processedToken, err := jwt.ParseWithClaims(
 		token,
 		&claims,
@@ -36,13 +36,15 @@ func validateToken(verifyKey *rsa.PublicKey, token string) (bool, error) {
 		},
 	)
 
-	fmt.Println(processedToken.Claims.(*MyCustomClaims).Foo)
+	fmt.Println(processedToken.Claims.(*CustomClaims).Foo)
 
 	if err == nil && processedToken.Valid {
 		fmt.Println("Your processedToken is valid.  I like your style.")
-		return true, err
+		return nil, err
 	} else {
 		fmt.Println("This processedToken is terrible!  I cannot accept this.")
-		return false, err
+		return nil, err
 	}
+
+	return processedToken.Claims.(CustomClaims), nil
 }
