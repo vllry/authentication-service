@@ -25,7 +25,7 @@ func LoadPublicKey(pubkeyPath string) (*rsa.PublicKey, error) {
 	return verifyKey, nil
 }
 
-func ValidateToken(verifyKey *rsa.PublicKey, token string) (CustomClaims, error) {
+func ValidateToken(verifyKey *rsa.PublicKey, token string) (*CustomClaims, error) {
 	claims := CustomClaims{}
 	processedToken, err := jwt.ParseWithClaims(
 		token,
@@ -46,5 +46,6 @@ func ValidateToken(verifyKey *rsa.PublicKey, token string) (CustomClaims, error)
 		return nil, err
 	}
 
-	return processedToken.Claims.(CustomClaims), nil
+	processedClaims := processedToken.Claims.(CustomClaims)
+	return &processedClaims, nil
 }
