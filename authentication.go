@@ -2,17 +2,18 @@ package main
 
 import (
 	"crypto/rsa"
+	"errors"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"io/ioutil"
 )
 
 type CustomClaims struct {
-	Foo string `json:"foo"`
+	UserId string `json:"userId"`
 	jwt.StandardClaims
 }
 
-func LoadPublicKey(pubkeyPath string) (*rsa.PublicKey, error) {
+func loadPublicKey(pubkeyPath string) (*rsa.PublicKey, error) {
 	verifyBytes, err := ioutil.ReadFile(pubkeyPath)
 	if err != nil {
 		return nil, err
@@ -25,27 +26,24 @@ func LoadPublicKey(pubkeyPath string) (*rsa.PublicKey, error) {
 	return verifyKey, nil
 }
 
-func ValidateToken(verifyKey *rsa.PublicKey, token string) (*CustomClaims, error) {
+func validateToken(verifyKey *rsa.PublicKey, token string) (*CustomClaims, error) {
 	claims := CustomClaims{}
 	processedToken, err := jwt.ParseWithClaims(
 		token,
 		&claims,
 		func(token *jwt.Token) (interface{}, error) {
-			fmt.Println("Callback")
 			return verifyKey, nil
 		},
 	)
 
-	fmt.Println(processedToken.Claims.(*CustomClaims).Foo)
-
-	if err == nil && processedToken.Valid {
-		fmt.Println("Your processedToken is valid.  I like your style.")
+	if err != nil {
+		fmt.Println("Error during token validation", err)
 		return nil, err
-	} else {
-		fmt.Println("This processedToken is terrible!  I cannot accept this.")
-		return nil, err
+	} else if !processedToken.Valid {
+		fmt.Println("token not valid")
+		return nil, errors.New("processed token not valid")
 	}
 
-	processedClaims := processedToken.Claims.(CustomClaims)
-	return &processedClaims, nil
+	processedClaims := processedToken.Claims.(*CustomClaims)
+	return processedClaims, nil
 }
